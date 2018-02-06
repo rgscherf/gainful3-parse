@@ -104,18 +104,13 @@
 (defn- parse-salary
   "Pull "
   [salary-string]
-  (let [lower-salary-string (string/lower-case salary-string)
-        salary-type (cond
-                      (string/includes? lower-salary-string "hour") :hourly
-                      (string/includes? lower-salary-string "week") :weekly
-                      :else :annual)
-        cleaned-salary (string/replace salary-string #"([A-Za-z]|\*|,|\$|\.)" "")
+  (let [cleaned-salary (string/replace salary-string #"([A-Za-z]|\*|,|\$|\.)" "")
         salary-numbers (->> (string/split cleaned-salary #"-")
                             (map string/trim)
                             (map #(try (Double/valueOf ^String %)
                                        (catch NumberFormatException e 0)))
                             (map #(/ % 100)))]
-    {:wage-type  salary-type
+    {:wage-type  (pstring/salary-type salary-string)
      :salary-min (first salary-numbers)
      :salary-max (second salary-numbers)}))
 
@@ -134,20 +129,20 @@
   [parsed]
   (let [{:keys [city organization division salary]} (get-fields-in-page-body parsed)
         {:keys [wage-type salary-min salary-max]} (parse-salary salary)]
-    {:job/city       (if (string/includes? city ",") "Multiple" city)
-     :job/division   organization
-     :job/office     division
-     :job/salary-min salary-min
-     :job/salary-max salary-max
-     :job/wage-type  wage-type}))
+    #:job{:location   (if (string/includes? city ",") "Multiple" city)
+          :division   organization
+          :office     division
+          :salary-min salary-min
+          :salary-max salary-max
+          :wage-type  wage-type}))
 
 (defn- make-map
   [[url parsed]]
-  (merge {:job/url         url
-          :job/title       (get-job-title parsed)
-          :job/close-date  (close-date parsed)
-          :job/posted-date (posted-date parsed)
-          :job/government  "Ontario Public Service"}
+  (merge #:job{:url         url
+               :title       (get-job-title parsed)
+               :close-date  (close-date parsed)
+               :posted-date (posted-date parsed)
+               :government  "Ontario Public Service"}
          (body-fields parsed)))
 
 (defn execute
