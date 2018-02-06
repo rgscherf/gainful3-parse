@@ -11,3 +11,13 @@
        (map string/capitalize)
        (string/join " ")))
 
+(defn salary-type
+  [salary-string]
+  (let [lower-salary-string (string/lower-case salary-string)
+        salary-contains? (fn [needle] (string/includes? lower-salary-string needle))]
+    (cond
+      (salary-contains? "hour") :hourly
+      (salary-contains? "week") :weekly
+      :else :annual)))
+
+
