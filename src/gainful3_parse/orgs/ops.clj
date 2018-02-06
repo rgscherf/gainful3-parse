@@ -43,20 +43,6 @@
                           ;; and fill full URLs
                           (map #(str "https://www.gojobs.gov.on.ca/" %))))))
 
-;; Template map for all jobs.
-;; Contains all needed fields
-(def job-template
-  {:city        nil
-   :government  nil
-   :division    nil
-   :office      nil
-   :title       nil
-   :salary-min  nil
-   :salary-max  nil
-   :hourly?     nil
-   :posted-date nil
-   :close-date  nil})
-
 (defn- get-job-title
   [parsed]
   (-> parsed
@@ -115,20 +101,6 @@
                      (string/replace #"\s+" " "))}))
          (reduce merge))))
 
-;; Template map for all jobs.
-;; Contains all needed fields
-(def job-template
-  {:city        nil
-   :government  nil
-   :division    nil
-   :office      nil
-   :title       nil
-   :salary-min  nil
-   :salary-max  nil
-   :wage-type   nil
-   :posted-date nil
-   :close-date  nil})
-
 (defn- parse-salary
   "Pull "
   [salary-string]
@@ -136,7 +108,7 @@
         salary-type (cond
                       (string/includes? lower-salary-string "hour") :hourly
                       (string/includes? lower-salary-string "week") :weekly
-                      :else :yearly)
+                      :else :annual)
         cleaned-salary (string/replace salary-string #"([A-Za-z]|\*|,|\$|\.)" "")
         salary-numbers (->> (string/split cleaned-salary #"-")
                             (map string/trim)
@@ -162,21 +134,20 @@
   [parsed]
   (let [{:keys [city organization division salary]} (get-fields-in-page-body parsed)
         {:keys [wage-type salary-min salary-max]} (parse-salary salary)]
-    {:city       (if (string/includes? city ",") "Multiple" city)
-     :division   organization
-     :office     division
-     :salary-min salary-min
-     :salary-max salary-max
-     :wage-type  wage-type}))
+    {:job/city       (if (string/includes? city ",") "Multiple" city)
+     :job/division   organization
+     :job/office     division
+     :job/salary-min salary-min
+     :job/salary-max salary-max
+     :job/wage-type  wage-type}))
 
 (defn- make-map
   [[url parsed]]
-  (merge job-template
-         {:url         url
-          :title       (get-job-title parsed)
-          :close-date  (close-date parsed)
-          :posted-date (posted-date parsed)
-          :government  "Ontario Public Service"}
+  (merge {:job/url         url
+          :job/title       (get-job-title parsed)
+          :job/close-date  (close-date parsed)
+          :job/posted-date (posted-date parsed)
+          :job/government  "Ontario Public Service"}
          (body-fields parsed)))
 
 (defn execute

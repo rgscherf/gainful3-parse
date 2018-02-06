@@ -4,6 +4,7 @@
   :license {:name "MIT License"
             :url  "https://opensource.org/licenses/MIT"}
   :dependencies [[org.clojure/clojure "1.9.0"]
+                 [org.clojure/spec.alpha "0.1.143"]
                  [enlive "1.1.1"]
                  [etaoin "0.2.4"]
                  ])
