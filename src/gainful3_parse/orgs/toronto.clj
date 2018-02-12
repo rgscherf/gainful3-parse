@@ -79,6 +79,5 @@
 
 (defn execute
   [banned-urls]
-  (map
-    scrape-single-job
-    (clojure.set/difference (job-urls) banned-urls)))
+  (pmap scrape-single-job
+        (clojure.set/difference (job-urls) banned-urls)))

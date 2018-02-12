@@ -1,24 +1,39 @@
 (ns gainful3-parse.core
-  (:require [gainful3-parse.orgs.ops]))
+  (:require [clojure.spec.alpha :as spec]
+            [gainful3-parse.utils.logging :as log]
+            [gainful3-parse.db.main :as db]
+            [gainful3-parse.orgs.ops]
+            [gainful3-parse.orgs.toronto]
+            [gainful3-parse.structs.utils :as struct-utils]
+            [gainful3-parse.structs.job]))
 
-
-(defn -main [& args]
+(defn -main
+  [& args]
   ;; prune expired jobs from DB
-  (comment "???")
+  ;; ???
 
   ;; get all current job URLs from DB, in a set
-  (def current-job-urls #{})
+  (let [current-job-urls (db/all-job-urls)
+        scrape-fns [gainful3-parse.orgs.ops/execute
+                    gainful3-parse.orgs.toronto/execute]]
+    ;; apply each of the fns, with the current job URLS (current URLs are not re-parsed)
+    (->> scrape-fns
+         (map #(% current-job-urls))
+         flatten
+         ;; ensure only valid jobs are being returned
+         (reduce (partial struct-utils/check-conformances :struct/job) [])
+         ;; insert all the jobs
+         db/insert-jobs!)
+    ))
 
-  ;; make a coll of all scraping fns
-  (def scrape-fns [
-                   gainful3-parse.orgs.ops/execute
-                   ])
-
-  ;; apply each of the fns, with the current job URLS (current URLs are not re-parsed)
-  (->> scrape-fns
-       (map #(% current-job-urls))
-       flatten)
-
-  ;; insert all these new jobs into DB
-  (comment "???"))
-
+(comment
+  (time (-main))
+  (+ 1 3)
+  gotjobs
+  (def filtjobs (filter (partial spec/valid? :struct/job) gotjobs))
+  (count gotjobs)
+  (map dbutil/struct->dbjob gotjobs)
+  (-main)
+  (db/all-jobs)
+  (count (db/all-jobs))
+  (frequencies (map :job/url (db/all-jobs))))

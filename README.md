@@ -6,7 +6,7 @@ Crawl and parse job postings for use by gainful.work webserver.
 
 | Status | Organization | Geographic Region |
 | --- | --- | --- |
-| :white_check_mark: | ONtario Public Service | GTA |
+| :white_check_mark: | Ontario Public Service | GTA |
 | :white_check_mark: | Toronto | Toronto |
 | :soon: | Mississauga | Peel |
 | :soon: | Peel Region | Peel |

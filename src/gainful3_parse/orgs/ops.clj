@@ -147,12 +147,10 @@
 
 (defn execute
   [current-urls]
-  (let [keywords ["policy"
-                  "consulting"]]
+  (let [keywords ["policy" "consulting"]]
     (->> keywords
          (pmap ops-postings-for-cat)
          (reduce into #{})
          (#(set/difference % current-urls))
          (pmap (fn [url] [url (fetch-from-url url)]))
          (map make-map))))
-

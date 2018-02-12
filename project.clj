@@ -5,6 +5,8 @@
             :url  "https://opensource.org/licenses/MIT"}
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/spec.alpha "0.1.143"]
+                 [org.clojure/java.jdbc "0.7.5"]
+                 [org.xerial/sqlite-jdbc "3.21.0.1"]
                  [enlive "1.1.1"]
                  [etaoin "0.2.4"]
                  ])
