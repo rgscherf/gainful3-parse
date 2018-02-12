@@ -28,12 +28,10 @@
 
 (comment
   (time (-main))
-  (+ 1 3)
-  gotjobs
-  (def filtjobs (filter (partial spec/valid? :struct/job) gotjobs))
-  (count gotjobs)
-  (map dbutil/struct->dbjob gotjobs)
   (-main)
   (db/all-jobs)
   (count (db/all-jobs))
+  (->> (db/all-jobs)
+       (filter #(= "Ontario Public Service" (:job/government %)))
+       count)
   (frequencies (map :job/url (db/all-jobs))))

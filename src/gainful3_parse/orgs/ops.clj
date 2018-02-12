@@ -1,15 +1,16 @@
 (ns gainful3-parse.orgs.ops
   (:require [etaoin.api :as eta]
-            [etaoin.keys :as etak]
             [clojure.string :as string]
             [clojure.set :as set]
             [gainful3-parse.utils.string :as pstring]
+            [gainful3-parse.utils.logging :as log]
             [net.cgrand.enlive-html :as enlive]
-            ))
+            )
+  (:import (java.net URL)))
 
 (defn- fetch-from-url
   [url]
-  (enlive/html-resource (java.net.URL. url)))
+  (enlive/html-resource (URL. url)))
 
 ;; create a phantom etaoin driver that will be automatically disposed of.
 (defn- ops-postings-for-cat
@@ -149,8 +150,11 @@
   [current-urls]
   (let [keywords ["policy" "consulting"]]
     (->> keywords
-         (pmap ops-postings-for-cat)
+         (pmap #(log/try-log "get URLs for OPS job categories"
+                             (ops-postings-for-cat %)))
+         (remove nil?)
          (reduce into #{})
          (#(set/difference % current-urls))
-         (pmap (fn [url] [url (fetch-from-url url)]))
+         (pmap (fn [url] [url (log/try-log "get OPS job HTML"
+                                           (fetch-from-url url))]))
          (map make-map))))
