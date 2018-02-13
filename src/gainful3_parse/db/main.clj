@@ -1,6 +1,10 @@
 (ns gainful3-parse.db.main
   (:require [clojure.java.jdbc :as sql]
-            [gainful3-parse.db.utils :refer :all])
+            [gainful3-parse.utils.logging :as log]
+            [gainful3-parse.specs.job :as job]
+            [gainful3-parse.specs.utils :as spec-utils]
+            [gainful3-parse.db.utils :refer :all]
+            [gainful3-parse.utils.logging :as log])
   (:import (java.util Date)))
 
 (def dbspec
@@ -32,11 +36,6 @@
   []
   (sql/execute! dbspec "drop table if exists jobs"))
 
-(defn insert-jobs!
-  "Insert jobs into DB. Assumes all inputs match the :struct/job spec."
-  [jobs]
-  (sql/insert-multi! dbspec :jobs (map struct->dbjob jobs)))
-
 (defn all-jobs
   "Retrieve all jobs in DB."
   []
@@ -46,8 +45,28 @@
 
 (defn all-job-urls
   []
-  (into #{}
-        (map :job/url (all-jobs))))
+  (into #{} (map ::job/url (all-jobs))))
+
+(defn- filter-existing-urls
+  [jobs]
+  (let [all-urls (all-job-urls)]
+    (reduce (fn [collected new]
+              (if (all-urls (::job/url new))
+                (do
+                  (log/info (str "Existing job found in DB at URL " (::job/url new)))
+                  collected)
+                (conj collected new)))
+            nil
+            jobs)))
+
+(defn insert-jobs!
+  "Insert jobs into DB. Filters out non-conforming jobs, and jobs whose URLs already exist in DB."
+  [jobs]
+  (->> jobs
+       (spec-utils/filter-for-conformance ::job/job)
+       filter-existing-urls
+       (map struct->dbjob)
+       (sql/insert-multi! dbspec :jobs)))
 
 (comment
   (drop-jobs-table!)

@@ -4,6 +4,7 @@
             [clojure.set :as set]
             [gainful3-parse.utils.string :as pstring]
             [gainful3-parse.utils.logging :as log]
+            [gainful3-parse.specs.job :as job]
             [net.cgrand.enlive-html :as enlive]
             )
   (:import (java.net URL)))
@@ -130,20 +131,20 @@
   [parsed]
   (let [{:keys [city organization division salary]} (get-fields-in-page-body parsed)
         {:keys [wage-type salary-min salary-max]} (parse-salary salary)]
-    #:job{:location   (if (string/includes? city ",") "Multiple" city)
-          :division   organization
-          :office     division
-          :salary-min salary-min
-          :salary-max salary-max
-          :wage-type  wage-type}))
+    #::job{:location   (if (string/includes? city ",") "Multiple" city)
+           :division   organization
+           :office     division
+           :salary-min salary-min
+           :salary-max salary-max
+           :wage-type  wage-type}))
 
 (defn- make-map
   [[url parsed]]
-  (merge #:job{:url         url
-               :title       (get-job-title parsed)
-               :close-date  (close-date parsed)
-               :posted-date (posted-date parsed)
-               :government  "Ontario Public Service"}
+  (merge #::job{:url         url
+                :title       (get-job-title parsed)
+                :close-date  (close-date parsed)
+                :posted-date (posted-date parsed)
+                :government  "Ontario Public Service"}
          (body-fields parsed)))
 
 (defn execute

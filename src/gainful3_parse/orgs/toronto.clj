@@ -1,6 +1,7 @@
 (ns gainful3-parse.orgs.toronto
   (:require [net.cgrand.enlive-html :as enlive]
             [gainful3-parse.utils.string :as pstring]
+            [gainful3-parse.specs.job :as job]
             [clojure.string :as string])
   (:import (java.net URL)
            (java.util Date)))
@@ -65,17 +66,17 @@
         from-fields (fn [field] (try (string/trim (get fields field))
                                      (catch Exception _ (get fields field))))
         {:keys [type min max]} (parse-salary (from-fields "Salary/Rate"))]
-    #:job{:url         job-url
-          :location    "Toronto"
-          :government  "City of Toronto"
-          :division    (from-fields "Division")
-          :office      (from-fields "Section")
-          :title       (-> "Job Classification Title" from-fields pstring/title-case)
-          :salary-min  min
-          :salary-max  max
-          :wage-type   type
-          :posted-date (-> "Posting Date" from-fields try-date)
-          :close-date  (-> "Closing Date" from-fields try-date)}))
+    #::job{:url         job-url
+           :location    "Toronto"
+           :government  "City of Toronto"
+           :division    (from-fields "Division")
+           :office      (from-fields "Section")
+           :title       (-> "Job Classification Title" from-fields pstring/title-case)
+           :salary-min  min
+           :salary-max  max
+           :wage-type   type
+           :posted-date (-> "Posting Date" from-fields try-date)
+           :close-date  (-> "Closing Date" from-fields try-date)}))
 
 (defn execute
   [banned-urls]

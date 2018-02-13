@@ -1,4 +1,5 @@
 (ns gainful3-parse.db.utils
+  (:require [gainful3-parse.specs.job :as job])
   (:import (java.util Date)))
 
 (defn date->unix
@@ -19,7 +20,7 @@
 
 (defn struct->dbjob
   "Convert a :struct/job to matching DB row."
-  [{:keys [job/url job/location job/government job/division job/office job/title job/salary-min job/salary-max job/wage-type job/posted-date job/close-date]}]
+  [{:keys [::job/url ::job/location ::job/government ::job/division ::job/office ::job/title ::job/salary-min ::job/salary-max ::job/wage-type ::job/posted-date ::job/close-date]}]
   {:url          url
    :location     location
    :government   government
@@ -36,16 +37,16 @@
 (defn dbjob->struct
   "Convert a job retrieved from DB into a map matching :struct/job spec."
   [{:keys [salary_min division close_date salary_max created_date posted_date title office wage_type id url location government]}]
-  #:job{:url          url
-        :location     location
-        :government   government
-        :division     division
-        :office       office
-        :title        title
-        :salary-min   salary_min
-        :salary-max   salary_max
-        :wage-type    (keyword wage_type)
-        :posted-date  (unix->date posted_date)
-        :close-date   (unix->date close_date)
-        :created-date (unix->date created_date)})
+  #::job{:url          url
+         :location     location
+         :government   government
+         :division     division
+         :office       office
+         :title        title
+         :salary-min   salary_min
+         :salary-max   salary_max
+         :wage-type    (keyword wage_type)
+         :posted-date  (unix->date posted_date)
+         :close-date   (unix->date close_date)
+         :created-date (unix->date created_date)})
 

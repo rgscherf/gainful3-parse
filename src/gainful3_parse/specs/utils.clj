@@ -1,4 +1,4 @@
-(ns gainful3-parse.structs.utils
+(ns gainful3-parse.specs.utils
   (:require [clojure.spec.alpha :as spec]
             [gainful3-parse.utils.logging :as log]))
 
@@ -11,10 +11,14 @@
        (filter (fn [s] (not (spec/valid? spec s))))
        (map (partial spec/explain-data spec))))
 
-(defn check-conformances
+(defn- filter-for-conformance*
   [conform-spec collected new]
-  (if (spec/invalid? conform-spec)
+  (if (not (spec/valid? conform-spec new))
     (do
-      (log/log (str "INVALID SPEC FOR " conform-spec ", conform data: " (spec/explain conform-spec new)))
+      (log/info (str "INVALID SPEC FOR " conform-spec ", conform data: " (spec/explain-data conform-spec new)))
       collected)
     (conj collected new)))
+
+(defn filter-for-conformance
+  [conform-spec coll]
+  (reduce (partial filter-for-conformance* conform-spec) [] coll))

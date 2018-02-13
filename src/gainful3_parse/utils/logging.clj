@@ -1,9 +1,13 @@
 (ns gainful3-parse.utils.logging
   (:require [clojure.tools.logging :as log]))
 
-(defn log
+(defn info
   [printable]
   (log/info printable))
+
+(defn warn
+  [printable]
+  (log/warn printable))
 
 (defmacro try-log
   [tag call]
