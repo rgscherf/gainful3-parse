@@ -9,4 +9,9 @@
                  [org.xerial/sqlite-jdbc "3.21.0.1"]
                  [enlive "1.1.1"]
                  [etaoin "0.2.4"]
+                 [org.clojure/tools.logging "0.3.1"]
+                 [log4j/log4j "1.2.17" :exclusions [javax.mail/mail
+                                                    javax.jms/jms
+                                                    com.sun.jmdk/jmxtools
+                                                    com.sun.jmx/jmxri]]
                  ])
